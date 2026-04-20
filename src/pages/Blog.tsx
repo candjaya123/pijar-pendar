@@ -1,136 +1,48 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, User, Tag } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { Article } from '../types';
 
 export default function Blog() {
-  const articles: Article[] = [
-    {
-      id: '1',
-      title: 'Tips Menulis Buku untuk Pemula',
-      excerpt: 'Panduan lengkap memulai menulis buku pertama Anda dengan langkah-langkah praktis dan mudah dipahami.',
-      coverImage: 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Ahmad Sutanto',
-      publishedDate: '15 Maret 2026',
-      category: 'Tips Menulis',
-      slug: 'tips-menulis-buku-pemula'
-    },
-    {
-      id: '2',
-      title: 'Pentingnya ISBN dalam Penerbitan Buku',
-      excerpt: 'Mengapa ISBN penting untuk buku Anda dan bagaimana cara mendapatkannya dengan mudah.',
-      coverImage: 'https://images.pexels.com/photos/256520/pexels-photo-256520.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Budi Santoso',
-      publishedDate: '10 Maret 2026',
-      category: 'Penerbitan',
-      slug: 'pentingnya-isbn'
-    },
-    {
-      id: '3',
-      title: 'Cara Membuat Cover Buku yang Menarik',
-      excerpt: 'Desain cover yang baik dapat meningkatkan penjualan buku. Simak tips lengkapnya di sini.',
-      coverImage: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Siti Nurhaliza',
-      publishedDate: '5 Maret 2026',
-      category: 'Desain',
-      slug: 'cover-buku-menarik'
-    },
-    {
-      id: '4',
-      title: 'Strategi Marketing Buku di Era Digital',
-      excerpt: 'Pelajari strategi efektif untuk memasarkan buku Anda di platform digital dan media sosial.',
-      coverImage: 'https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Andi Wijaya',
-      publishedDate: '28 Februari 2026',
-      category: 'Marketing',
-      slug: 'marketing-buku-digital'
-    },
-    {
-      id: '5',
-      title: 'Mengubah Skripsi Menjadi Buku Populer',
-      excerpt: 'Panduan praktis mengkonversi karya tulis ilmiah menjadi buku yang menarik untuk dibaca.',
-      coverImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Rahman Abdullah',
-      publishedDate: '20 Februari 2026',
-      category: 'Tips Menulis',
-      slug: 'skripsi-jadi-buku'
-    },
-    {
-      id: '6',
-      title: 'Hak Cipta dan Perlindungan Karya Tulis',
-      excerpt: 'Memahami pentingnya melindungi karya tulis Anda melalui hak cipta dan HKI.',
-      coverImage: 'https://images.pexels.com/photos/5668882/pexels-photo-5668882.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Dewi Lestari',
-      publishedDate: '15 Februari 2026',
-      category: 'Hukum',
-      slug: 'hak-cipta-karya'
-    },
-    {
-      id: '7',
-      title: 'Membangun Kebiasaan Menulis Konsisten',
-      excerpt: 'Tips praktis membangun rutinitas menulis yang konsisten dan produktif setiap hari.',
-      coverImage: 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Yusuf Hidayat',
-      publishedDate: '8 Februari 2026',
-      category: 'Tips Menulis',
-      slug: 'kebiasaan-menulis'
-    },
-    {
-      id: '8',
-      title: 'Peran Editor dalam Proses Penerbitan',
-      excerpt: 'Mengapa editor penting dalam proses penerbitan dan bagaimana bekerja sama dengan mereka.',
-      coverImage: 'https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Rina Melati',
-      publishedDate: '1 Februari 2026',
-      category: 'Penerbitan',
-      slug: 'peran-editor'
-    },
-    {
-      id: '9',
-      title: 'Self Publishing vs Penerbit Mayor',
-      excerpt: 'Perbandingan lengkap antara self publishing dan penerbit mayor, beserta kelebihan dan kekurangannya.',
-      coverImage: 'https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Hendra Gunawan',
-      publishedDate: '25 Januari 2026',
-      category: 'Penerbitan',
-      slug: 'self-publishing-vs-mayor'
-    },
-    {
-      id: '10',
-      title: 'Menulis Buku Anak yang Berkualitas',
-      excerpt: 'Panduan lengkap menulis buku anak yang edukatif, menarik, dan sesuai dengan usia pembaca.',
-      coverImage: 'https://images.pexels.com/photos/7092611/pexels-photo-7092611.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Sri Wahyuni',
-      publishedDate: '18 Januari 2026',
-      category: 'Tips Menulis',
-      slug: 'menulis-buku-anak'
-    },
-    {
-      id: '11',
-      title: 'Riset Pasar Sebelum Menulis Buku',
-      excerpt: 'Mengapa riset pasar penting dan bagaimana melakukannya sebelum menulis buku Anda.',
-      coverImage: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Bambang Sutrisno',
-      publishedDate: '10 Januari 2026',
-      category: 'Marketing',
-      slug: 'riset-pasar-buku'
-    },
-    {
-      id: '12',
-      title: 'Mengatasi Writers Block Secara Efektif',
-      excerpt: 'Strategi ampuh mengatasi kebuntuan ide saat menulis dan kembali produktif.',
-      coverImage: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=600',
-      author: 'Ahmad Sutanto',
-      publishedDate: '5 Januari 2026',
-      category: 'Tips Menulis',
-      slug: 'mengatasi-writers-block'
-    }
-  ];
+  const [articles, setArticles] = useState<Article[]>([]);
+
+  const [banner, setBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/banners/artikel`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.banner_url) setBanner(data.banner_url);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/articles`)
+      .then(res => res.json())
+      .then(data => {
+        const mapped = data.map((a: any) => ({
+          id: a.id.toString(),
+          title: a.title,
+          excerpt: a.content.substring(0, 150) + '...',
+          coverImage: 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=600',
+          author: a.author,
+          publishedDate: a.created_at,
+          category: 'Artikel',
+          slug: a.id.toString()
+        }));
+        if (mapped.length > 0) setArticles(mapped);
+      });
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <section className="bg-gradient-to-r from-peach-200 to-peach-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: banner ? `url(${banner})` : 'none' }}>
+           {!banner && <div className="absolute inset-0 bg-gradient-to-r from-peach-300 to-peach-100" />}
+           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

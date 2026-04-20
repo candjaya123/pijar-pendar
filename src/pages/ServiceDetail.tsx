@@ -1,14 +1,90 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Palette, FileText, Printer, Shield, Users,
-  ShoppingCart, Globe, Library, CheckCircle, ExternalLink
+  ShoppingCart, Globe, Library, CheckCircle, ExternalLink,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import SectionTitle from '../components/ui/SectionTitle';
 import { ManuscriptSubmission } from '../types';
+
+// Photo gallery component for services that have portfolio photos
+function PhotoGallery({ photos, title }: { photos: string[]; title: string }) {
+  const [current, setCurrent] = useState(0);
+
+  const prev = () => setCurrent(p => (p - 1 + photos.length) % photos.length);
+  const next = () => setCurrent(p => (p + 1) % photos.length);
+
+  if (!photos.length) return null;
+
+  return (
+    <Card className="p-8 mb-8">
+      <h2 className="text-2xl font-bold mb-6">Galeri {title}</h2>
+      <div className="relative rounded-xl overflow-hidden bg-gray-100 aspect-video mb-4">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={current}
+            src={photos[current]}
+            alt={`${title} ${current + 1}`}
+            className="w-full h-full object-cover"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          />
+        </AnimatePresence>
+
+        {photos.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-2 rounded-full transition-all"
+            >
+              <ChevronLeft className="h-5 w-5 text-white" />
+            </button>
+            <button
+              onClick={next}
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-2 rounded-full transition-all"
+            >
+              <ChevronRight className="h-5 w-5 text-white" />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+              {photos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    i === current ? 'bg-white w-6' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnail strip */}
+      {photos.length > 1 && (
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {photos.map((photo, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                i === current ? 'border-peach-500' : 'border-gray-200 hover:border-peach-300'
+              }`}
+            >
+              <img src={photo} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -21,155 +97,48 @@ export default function ServiceDetail() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const services = {
-    'penerbitan': {
-      icon: BookOpen,
-      name: 'Penerbitan Buku',
-      description: 'Layanan penerbitan buku profesional dengan ISBN resmi',
-      fullDescription: 'Kami menyediakan layanan penerbitan buku lengkap dengan ISBN resmi. Paket kami mencakup editing, layout, desain cover, dan pengurusan ISBN. Dengan pengalaman lebih dari 8 tahun, kami siap membantu mewujudkan impian Anda menjadi penulis buku ber-ISBN.',
-      features: [
-        'ISBN resmi dari Perpustakaan Nasional',
-        'Editing profesional',
-        'Desain cover menarik',
-        'Layout berkualitas tinggi',
-        'Konsultasi gratis',
-        'Proses cepat (2-4 minggu)'
-      ],
-      pricing: 'Paket mulai dari Rp 550.000',
-      image: 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'desain-layout': {
-      icon: Palette,
-      name: 'Desain & Layout',
-      description: 'Desain cover dan layout profesional untuk buku Anda',
-      fullDescription: 'Tim desainer profesional kami siap membuat desain cover yang menarik dan layout buku yang rapi dan nyaman dibaca. Kami mengutamakan estetika dan keterbacaan untuk memberikan hasil terbaik.',
-      features: [
-        'Desain cover premium',
-        'Layout interior profesional',
-        'Revisi unlimited',
-        'File siap cetak (PDF)',
-        'Konsultasi desain',
-        'Berbagai pilihan template'
-      ],
-      pricing: 'Mulai dari Rp 300.000',
-      image: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'konversi-kti': {
-      icon: FileText,
-      name: 'Konversi KTI ke Buku',
-      description: 'Ubah karya tulis ilmiah menjadi buku ber-ISBN',
-      fullDescription: 'Layanan konversi karya tulis ilmiah (skripsi, tesis, disertasi) menjadi buku ber-ISBN yang siap diterbitkan. Proses mudah dan hasil berkualitas.',
-      features: [
-        'Konversi format akademik ke buku',
-        'Editing substansi',
-        'Penyesuaian layout',
-        'ISBN resmi',
-        'Desain cover akademik',
-        'Proses cepat'
-      ],
-      pricing: 'Mulai dari Rp 650.000',
-      image: 'https://images.pexels.com/photos/256520/pexels-photo-256520.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'percetakan': {
-      icon: Printer,
-      name: 'Percetakan',
-      description: 'Layanan cetak buku dengan kualitas terbaik',
-      fullDescription: 'Cetak buku dengan teknologi modern dan bahan berkualitas. Kami melayani cetak dalam jumlah kecil maupun besar dengan harga kompetitif.',
-      features: [
-        'Cetak POD (Print on Demand)',
-        'Berbagai pilihan kertas',
-        'Finishing berkualitas',
-        'Harga kompetitif',
-        'Pengiriman ke seluruh Indonesia',
-        'Minimal order fleksibel'
-      ],
-      pricing: 'Harga per eksemplar mulai Rp 15.000',
-      image: 'https://images.pexels.com/photos/159751/book-address-book-learning-learn-159751.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'hki': {
-      icon: Shield,
-      name: 'Hak Kekayaan Intelektual',
-      description: 'Pengurusan HKI untuk melindungi karya Anda',
-      fullDescription: 'Layanan pengurusan Hak Kekayaan Intelektual (HKI) untuk melindungi karya tulis Anda. Tim ahli kami siap membantu proses pendaftaran hingga selesai.',
-      features: [
-        'Pendaftaran HKI resmi',
-        'Konsultasi hukum',
-        'Proses profesional',
-        'Sertifikat resmi',
-        'Tracking status aplikasi',
-        'Dokumentasi lengkap'
-      ],
-      pricing: 'Mulai dari Rp 1.200.000',
-      image: 'https://images.pexels.com/photos/5668882/pexels-photo-5668882.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'event-workshop': {
-      icon: Users,
-      name: 'Event & Workshop',
-      description: 'Workshop menulis dan penerbitan buku',
-      fullDescription: 'Kami menyelenggarakan workshop menulis, seminar penerbitan, dan berbagai acara literasi. Tingkatkan kemampuan menulis Anda bersama para ahli.',
-      features: [
-        'Workshop menulis rutin',
-        'Seminar penerbitan',
-        'Pelatihan editing',
-        'Konsultasi karya',
-        'Networking dengan penulis',
-        'Sertifikat peserta'
-      ],
-      pricing: 'Mulai dari Rp 150.000/peserta',
-      image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'reseller': {
-      icon: ShoppingCart,
-      name: 'Program Reseller',
-      description: 'Bergabung sebagai reseller buku kami',
-      fullDescription: 'Dapatkan penghasilan tambahan dengan menjadi reseller buku kami. Sistem mudah, komisi menarik, dan dukungan penuh dari tim kami.',
-      features: [
-        'Komisi hingga 30%',
-        'Katalog lengkap',
-        'Material promosi gratis',
-        'Pelatihan reseller',
-        'Support tim marketing',
-        'Pengiriman dropship'
-      ],
-      pricing: 'Gratis bergabung',
-      image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'distribusi-digital': {
-      icon: Globe,
-      name: 'Distribusi Digital',
-      description: 'Distribusi buku ke platform digital',
-      fullDescription: 'Perluas jangkauan pembaca dengan mendistribusikan buku Anda ke berbagai platform digital seperti Google Play Books, IPUSNAS, dan lainnya.',
-      features: [
-        'Distribusi multi-platform',
-        'Google Play Books',
-        'IPUSNAS',
-        'E-commerce marketplace',
-        'Royalti transparan',
-        'Laporan penjualan berkala'
-      ],
-      pricing: 'Mulai dari Rp 500.000',
-      image: 'https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    'pengadaan-perpus': {
-      icon: Library,
-      name: 'Pengadaan Perpustakaan',
-      description: 'Solusi pengadaan buku untuk perpustakaan',
-      fullDescription: 'Kami menyediakan solusi pengadaan buku untuk perpustakaan sekolah, kampus, dan instansi. Proses mudah, harga khusus, dan pelayanan profesional.',
-      features: [
-        'Harga khusus institusi',
-        'Katalog lengkap',
-        'Proses tender',
-        'Pengiriman terjadwal',
-        'Invoice resmi',
-        'Konsultasi koleksi'
-      ],
-      pricing: 'Harga disesuaikan volume',
-      image: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=1200'
+  const [service, setService] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/services/${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          // Parse JSON lists
+          try {
+            data.features = JSON.parse(data.features || '[]');
+            data.galleryPhotos = JSON.parse(data.gallery_images || '[]');
+          } catch(e) {
+            data.features = data.features ? data.features.split('\n') : [];
+            data.galleryPhotos = data.gallery_images ? data.gallery_images.split('\n') : [];
+          }
+          setService(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, [slug]);
+
+  const getServiceIcon = (slug: string) => {
+    switch (slug) {
+      case 'penerbitan': return BookOpen;
+      case 'desain-layout': return Palette;
+      case 'konversi-kti': return FileText;
+      case 'percetakan': return Printer;
+      case 'hki': return Shield;
+      case 'event-workshop': return Users;
+      case 'reseller': return ShoppingCart;
+      case 'distribusi-digital': return Globe;
+      case 'pengadaan-perpus': return Library;
+      default: return Layers;
     }
   };
 
-  const service = services[slug as keyof typeof services];
-  const Icon = service?.icon;
+  const Icon = service ? getServiceIcon(service.slug) : null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -186,6 +155,17 @@ export default function ServiceDetail() {
       setIsSubmitting(false);
     }, 1500);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-peach-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 font-medium">Memuat Layanan...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!service) {
     return (
@@ -204,7 +184,7 @@ export default function ServiceDetail() {
     <div className="bg-gray-50">
       <section
         className="relative h-[400px] bg-cover bg-center"
-        style={{ backgroundImage: `url(${service.image})` }}
+        style={{ backgroundImage: `url(${service.banner_image || service.image})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60" />
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
@@ -230,16 +210,27 @@ export default function ServiceDetail() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <Card className="p-8 mb-8">
-                <h2 className="text-2xl font-bold mb-4">Tentang Layanan</h2>
-                <p className="text-gray-700 text-lg mb-6">{service.fullDescription}</p>
 
-                <h3 className="text-xl font-bold mb-4">Fitur Layanan</h3>
+              {/* ===== REVISI #5: Slide foto untuk layanan yang punya galeri ===== */}
+              {service.galleryPhotos && service.galleryPhotos.length > 0 && (
+                <PhotoGallery
+                  photos={service.galleryPhotos}
+                  title={service.name}
+                />
+              )}
+
+              <Card className="p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-4 text-gray-900 border-b pb-4 border-gray-100">Tentang Layanan</h2>
+                <div className="prose max-w-none text-gray-700 text-lg leading-relaxed whitespace-pre-line mb-8">
+                  {service.full_description || service.fullDescription}
+                </div>
+
+                <h3 className="text-xl font-bold mb-4 text-gray-900">Fitur Layanan</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {service.features.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3">
+                  {service.features && service.features.map((feature: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
                       <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-gray-700 font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -326,9 +317,11 @@ export default function ServiceDetail() {
             </div>
 
             <div>
-              <Card className="p-6 sticky top-24">
-                <h3 className="text-xl font-bold mb-4">Informasi Harga</h3>
-                <p className="text-3xl font-bold text-peach-700 mb-6">{service.pricing}</p>
+              <Card className="p-6 sticky top-24 shadow-xl border-peach-100">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Informasi Harga</h3>
+                <p className="text-2xl font-black text-peach-700 mb-6 bg-peach-50 p-4 rounded-2xl text-center border border-peach-100">
+                  {service.pricing_text || service.pricing}
+                </p>
 
                 <a
                   href="https://forms.google.com/your-form-link"

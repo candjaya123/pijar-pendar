@@ -1,0 +1,12 @@
+**/node_modules
+dist
+.env
+.env.*
+.git
+.gitignore
+issue.md
+
+# Ignore the local backend database so we don't accidentally copy our dev DB into the image
+backend/database.db
+*.sqlite
+*.sqlite3

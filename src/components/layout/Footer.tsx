@@ -38,6 +38,7 @@ export default function Footer() {
               <li><Link to="/katalog" className="text-gray-400 hover:text-peach-200 transition-colors">Katalog Buku</Link></li>
               <li><Link to="/layanan" className="text-gray-400 hover:text-peach-200 transition-colors">Layanan</Link></li>
               <li><Link to="/komunitas" className="text-gray-400 hover:text-peach-200 transition-colors">Komunitas</Link></li>
+              <li><Link to="/admin" className="text-gray-400 hover:text-peach-200 transition-colors">Login Admin</Link></li>
             </ul>
           </div>
 

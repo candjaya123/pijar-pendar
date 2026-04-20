@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Filter, ShoppingBag, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Card from '../components/ui/Card';
@@ -11,140 +12,43 @@ export default function Store() {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [sortBy, setSortBy] = useState<'title-asc' | 'title-desc' | 'price-asc' | 'price-desc'>('title-asc');
 
-  const allBooks: Book[] = [
-    {
-      id: '1',
-      title: 'Pendidikan Karakter di Era Digital',
-      author: 'Dr. Ahmad Sutanto',
-      category: 'Pendidikan',
-      price: 85000,
-      coverImage: 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Implementasi pendidikan karakter dalam pembelajaran modern',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Pendidikan%20Karakter',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '2',
-      title: 'Manajemen Keuangan Syariah',
-      author: 'Prof. Budi Santoso',
-      category: 'Ekonomi',
-      price: 95000,
-      coverImage: 'https://images.pexels.com/photos/256520/pexels-photo-256520.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Panduan lengkap manajemen keuangan berbasis syariah',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Manajemen%20Keuangan',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '3',
-      title: 'Psikologi Perkembangan Anak',
-      author: 'Dr. Siti Nurhaliza',
-      category: 'Psikologi',
-      price: 78000,
-      coverImage: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Memahami tahapan perkembangan psikologi anak usia dini',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Psikologi%20Anak',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '4',
-      title: 'Digital Marketing untuk UMKM',
-      author: 'Andi Wijaya, S.Kom',
-      category: 'Bisnis',
-      price: 120000,
-      coverImage: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Strategi pemasaran digital yang efektif untuk bisnis kecil',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Digital%20Marketing',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '5',
-      title: 'Metodologi Penelitian Kualitatif',
-      author: 'Prof. Dr. Rahman',
-      category: 'Penelitian',
-      price: 110000,
-      coverImage: 'https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Panduan lengkap metodologi penelitian kualitatif',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Metodologi%20Penelitian',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '6',
-      title: 'Kepemimpinan Transformasional',
-      author: 'Dr. Hendra Gunawan',
-      category: 'Manajemen',
-      price: 92000,
-      coverImage: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Konsep dan praktik kepemimpinan transformasional',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Kepemimpinan',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '7',
-      title: 'Sastra Indonesia Modern',
-      author: 'Dewi Lestari, M.Hum',
-      category: 'Sastra',
-      price: 75000,
-      coverImage: 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Analisis karya sastra Indonesia kontemporer',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Sastra%20Indonesia',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '8',
-      title: 'Teknologi Informasi dalam Pendidikan',
-      author: 'Ir. Bambang Sutrisno',
-      category: 'Teknologi',
-      price: 98000,
-      coverImage: 'https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Implementasi teknologi informasi dalam dunia pendidikan',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Teknologi%20Informasi',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '9',
-      title: 'Hukum Bisnis Indonesia',
-      author: 'Prof. Dr. Susanto, S.H.',
-      category: 'Hukum',
-      price: 135000,
-      coverImage: 'https://images.pexels.com/photos/5668882/pexels-photo-5668882.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Aspek hukum dalam berbisnis di Indonesia',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Hukum%20Bisnis',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '10',
-      title: 'Filsafat Pendidikan',
-      author: 'Dr. Yusuf Hidayat',
-      category: 'Pendidikan',
-      price: 88000,
-      coverImage: 'https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Pemikiran filosofis dalam dunia pendidikan',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Filsafat%20Pendidikan',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '11',
-      title: 'Akuntansi Manajemen',
-      author: 'Dra. Sri Wahyuni, M.Ak',
-      category: 'Ekonomi',
-      price: 105000,
-      coverImage: 'https://images.pexels.com/photos/7092611/pexels-photo-7092611.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Konsep dan aplikasi akuntansi manajemen',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Akuntansi%20Manajemen',
-      shopeeLink: 'https://shopee.co.id'
-    },
-    {
-      id: '12',
-      title: 'Komunikasi Organisasi',
-      author: 'Dr. Rina Melati',
-      category: 'Komunikasi',
-      price: 82000,
-      coverImage: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Teori dan praktik komunikasi dalam organisasi',
-      whatsappLink: 'https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20Komunikasi%20Organisasi',
-      shopeeLink: 'https://shopee.co.id'
-    }
-  ];
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/books`)
+      .then(res => res.json())
+      .then(data => {
+        const mapped = data.map((b: any) => ({
+          id: b.id.toString(),
+          title: b.title,
+          author: b.author,
+          category: b.category,
+          price: b.price,
+          coverImage: b.cover_image || 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=400',
+          description: b.description,
+          whatsappLink: b.whatsapp_link || `https://wa.me/6281234567890?text=Saya%20ingin%20pesan%20buku%20${encodeURIComponent(b.title)}`,
+          shopeeLink: b.shopee_link || 'https://shopee.co.id',
+          tokopediaLink: b.tokopedia_link
+        }));
+        setAllBooks(mapped);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching books:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const [banner, setBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/banners/katalog`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.banner_url) setBanner(data.banner_url);
+      });
+  }, []);
 
   const categories = ['Semua', ...Array.from(new Set(allBooks.map(book => book.category)))];
 
@@ -182,8 +86,12 @@ export default function Store() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <section className="bg-gradient-to-r from-peach-200 to-peach-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: banner ? `url(${banner})` : 'none' }}>
+           {!banner && <div className="absolute inset-0 bg-gradient-to-r from-peach-300 to-peach-100" />}
+           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -246,7 +154,12 @@ export default function Store() {
             Menampilkan {filteredAndSortedBooks.length} dari {allBooks.length} buku
           </div>
 
-          {filteredAndSortedBooks.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-peach-500 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Memuat katalog...</p>
+            </div>
+          ) : filteredAndSortedBooks.length === 0 ? (
             <div className="text-center py-16">
               <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -260,54 +173,58 @@ export default function Store() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredAndSortedBooks.map((book) => (
                 <Card key={book.id} hover>
-                  <img
-                    src={book.coverImage}
-                    alt={book.title}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-4">
-                    <span className="inline-block bg-peach-100 text-peach-700 text-xs px-2 py-1 rounded-full mb-2">
-                      {book.category}
-                    </span>
-                    <h3 className="font-semibold text-lg mb-1 line-clamp-2">
-                      {book.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">{book.author}</p>
-                    <p className="text-peach-700 font-bold text-xl mb-4">
-                      Rp {book.price.toLocaleString('id-ID')}
-                    </p>
-                    <div className="space-y-2">
-                      <a
-                        href={book.whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full"
-                      >
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          className="w-full flex items-center justify-center gap-2"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          Pesan di WA
-                        </Button>
-                      </a>
-                      <a
-                        href={book.shopeeLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full"
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full flex items-center justify-center gap-2"
-                        >
-                          <ShoppingBag className="h-4 w-4" />
-                          Pesan di Shopee
-                        </Button>
-                      </a>
+                  {/* Clickable image & title area → goes to detail page */}
+                  <Link to={`/katalog/${book.id}`} className="block">
+                    <img
+                      src={book.coverImage}
+                      alt={book.title}
+                      className="w-full h-64 object-cover hover:opacity-90 transition-opacity"
+                    />
+                    <div className="px-4 pt-4 pb-2">
+                      <span className="inline-block bg-peach-100 text-peach-700 text-xs px-2 py-1 rounded-full mb-2">
+                        {book.category}
+                      </span>
+                      <h3 className="font-semibold text-lg mb-1 line-clamp-2 hover:text-peach-700 transition-colors">
+                        {book.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">{book.author}</p>
+                      <p className="text-peach-700 font-bold text-xl mb-3">
+                        Rp {book.price.toLocaleString('id-ID')}
+                      </p>
                     </div>
+                  </Link>
+                  {/* Order buttons stay outside Link to avoid nested anchor */}
+                  <div className="px-4 pb-4 space-y-2">
+                    <a
+                      href={book.whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full block"
+                    >
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="w-full flex items-center justify-center gap-2"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        Pesan di WA
+                      </Button>
+                    </a>
+                    <a
+                      href={book.shopeeLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full block"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full flex items-center justify-center gap-2"
+                      >
+                        <ShoppingBag className="h-4 w-4" />
+                        Pesan di Shopee
+                      </Button>
+                    </a>
                   </div>
                 </Card>
               ))}

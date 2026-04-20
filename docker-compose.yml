@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: pijar-pendar-web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount a local directory to persist the SQLite database
+      # Format: ./local-data-folder:/app/data
+      - ./data:/app/data
+    environment:
+      - PORT=5000
+    # Optional: if you plan to put this behind Nginx Reverse Proxy, 
+    # the port mapping '5000:5000' is only needed if you want it accessible directly.

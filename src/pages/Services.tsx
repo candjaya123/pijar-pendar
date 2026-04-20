@@ -1,93 +1,57 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Palette, FileText, Printer, Shield, Users,
-  ShoppingCart, Globe, Library, ArrowRight
+  ShoppingCart, Globe, Library, ArrowRight, Layers
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import SectionTitle from '../components/ui/SectionTitle';
 
 export default function Services() {
-  const services = [
-    {
-      icon: BookOpen,
-      name: 'Penerbitan Buku',
-      slug: 'penerbitan',
-      description: 'Layanan penerbitan buku profesional dengan ISBN resmi mulai dari Rp 550.000',
-      color: 'bg-blue-50',
-      iconColor: 'text-blue-600'
-    },
-    {
-      icon: Palette,
-      name: 'Desain & Layout',
-      slug: 'desain-layout',
-      description: 'Desain cover premium dan layout profesional untuk buku Anda',
-      color: 'bg-purple-50',
-      iconColor: 'text-purple-600'
-    },
-    {
-      icon: FileText,
-      name: 'Konversi KTI ke Buku',
-      slug: 'konversi-kti',
-      description: 'Ubah karya tulis ilmiah menjadi buku ber-ISBN yang siap diterbitkan',
-      color: 'bg-green-50',
-      iconColor: 'text-green-600'
-    },
-    {
-      icon: Printer,
-      name: 'Percetakan',
-      slug: 'percetakan',
-      description: 'Layanan cetak buku dengan kualitas terbaik dan harga kompetitif',
-      color: 'bg-orange-50',
-      iconColor: 'text-orange-600'
-    },
-    {
-      icon: Shield,
-      name: 'Hak Kekayaan Intelektual',
-      slug: 'hki',
-      description: 'Pengurusan HKI untuk melindungi karya tulis Anda secara legal',
-      color: 'bg-red-50',
-      iconColor: 'text-red-600'
-    },
-    {
-      icon: Users,
-      name: 'Event & Workshop',
-      slug: 'event-workshop',
-      description: 'Workshop menulis, seminar penerbitan, dan berbagai acara literasi',
-      color: 'bg-yellow-50',
-      iconColor: 'text-yellow-600'
-    },
-    {
-      icon: ShoppingCart,
-      name: 'Program Reseller',
-      slug: 'reseller',
-      description: 'Bergabung sebagai reseller dengan komisi menarik hingga 30%',
-      color: 'bg-pink-50',
-      iconColor: 'text-pink-600'
-    },
-    {
-      icon: Globe,
-      name: 'Distribusi Digital',
-      slug: 'distribusi-digital',
-      description: 'Distribusikan buku Anda ke platform digital seperti Google Play Books',
-      color: 'bg-indigo-50',
-      iconColor: 'text-indigo-600'
-    },
-    {
-      icon: Library,
-      name: 'Pengadaan Perpustakaan',
-      slug: 'pengadaan-perpus',
-      description: 'Solusi pengadaan buku untuk perpustakaan sekolah, kampus, dan instansi',
-      color: 'bg-teal-50',
-      iconColor: 'text-teal-600'
+  const getServiceIcon = (slug: string) => {
+    switch (slug) {
+      case 'penerbitan': return BookOpen;
+      case 'desain-layout': return Palette;
+      case 'konversi-kti': return FileText;
+      case 'percetakan': return Printer;
+      case 'hki': return Shield;
+      case 'event-workshop': return Users;
+      case 'reseller': return ShoppingCart;
+      case 'distribusi-digital': return Globe;
+      case 'pengadaan-perpus': return Library;
+      default: return Layers;
     }
-  ];
+  };
+
+  const [dbServices, setDbServices] = useState<any[]>([]);
+
+  const [banner, setBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/banners/layanan`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.banner_url) setBanner(data.banner_url);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/services`)
+      .then(res => res.json())
+      .then(data => setDbServices(data))
+      .catch(err => console.error('Error fetching services:', err));
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <section className="bg-gradient-to-r from-peach-200 to-peach-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: banner ? `url(${banner})` : 'none' }}>
+           {!banner && <div className="absolute inset-0 bg-gradient-to-r from-peach-300 to-peach-100" />}
+           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,30 +70,51 @@ export default function Services() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => {
-              const Icon = service.icon;
+            {dbServices.map((service, index) => {
+              const Icon = getServiceIcon(service.slug);
               return (
                 <motion.div
-                  key={service.slug}
+                  key={`db-${service.id}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Link to={`/layanan/${service.slug}`}>
-                    <Card hover className="h-full">
-                      <div className="p-6">
-                        <div className={`${service.color} w-16 h-16 rounded-full flex items-center justify-center mb-4`}>
-                          <Icon className={`h-8 w-8 ${service.iconColor}`} />
-                        </div>
-                        <h3 className="text-xl font-bold mb-3">{service.name}</h3>
-                        <p className="text-gray-600 mb-4">{service.description}</p>
-                        <div className="flex items-center text-peach-700 font-semibold group">
-                          <span>Pelajari Lebih Lanjut</span>
-                          <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                  <div className="bg-white rounded-2xl h-full shadow-sm border border-peach-200/50 hover:shadow-lg hover:border-peach-400 hover:-translate-y-1 transition-all duration-300 p-8 flex flex-col">
+                    <div className={`${service.color_class || 'bg-peach-50'} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm`}>
+                      <Icon className={`h-8 w-8 ${service.icon_color || 'text-peach-600'}`} />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-3 text-gray-900">{service.name}</h3>
+                    <p className="text-gray-600 mb-6 flex-grow leading-relaxed">{service.description}</p>
+                    {service.price ? (
+                       <p className="text-peach-700 font-extrabold text-lg mb-6 py-2 px-4 bg-peach-50 rounded-xl inline-block w-fit">
+                         Mulai Rp {service.price.toLocaleString('id-ID')}
+                       </p>
+                    ) : (
+                       <p className="text-peach-700 font-extrabold text-main mb-6 py-2 px-4 bg-peach-50 rounded-xl inline-block w-fit">
+                         Harga Hubungi Kami
+                       </p>
+                    )}
+                    <div className="flex flex-col gap-3">
+                      <Link to={`/layanan/${service.slug}`} className="w-full">
+                        <Button variant="primary" className="w-full flex items-center justify-center gap-2 group">
+                          Detail Layanan
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                      <div className="flex gap-2">
+                        {service.shopee_link && (
+                          <a href={service.shopee_link} target="_blank" rel="noopener noreferrer" className="flex-1">
+                            <Button size="sm" variant="outline" className="w-full">Shopee</Button>
+                          </a>
+                        )}
+                        {service.tokopedia_link && (
+                          <a href={service.tokopedia_link} target="_blank" rel="noopener noreferrer" className="flex-1">
+                            <Button size="sm" variant="outline" className="w-full">Tokopedia</Button>
+                          </a>
+                        )}
                       </div>
-                    </Card>
-                  </Link>
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}
